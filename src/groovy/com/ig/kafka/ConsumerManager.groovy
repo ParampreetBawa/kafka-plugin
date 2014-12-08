@@ -76,6 +76,30 @@ class ConsumerManager {
         ExecutorService executor = Executors.newFixedThreadPool(group.threadCount)
         openConsumerStreamsWithRetries(group, executor, maxTries)
         executor.shutdown()
+        return true
+    }
+
+    /**
+     * Stop the consumer group in running mode
+     * @param groupId
+     * @return
+     */
+    public Boolean stopConsumerGroup(String groupId){
+        if (null == groupId)
+            throw new IllegalArgumentException("group id cannot be null.")
+
+        ConsumerGroup group = groups[groupId]
+        if (!group)
+            throw IllegalStateException("no consumer group with group id :${groupId} found.")
+
+        if(_consumerStatusMap[group].equals(ConsumerStatus.STARTED))
+            throw new IllegalStateException("consumer with group id : ${groupId} is not running")
+
+        ConsumerConnector connector = _connectors.remove(groupId)
+        connector.commitOffsets()
+        connector.shutdown()
+        _consumerStatusMap.remove(groupId)
+        return true
     }
 
     /**
@@ -99,6 +123,7 @@ class ConsumerManager {
             } catch (Exception e) {
                 if (attempts++ == maxTries) {
                     _consumerStatusMap.put(group.groupId, ConsumerStatus.ERROR)
+                    _connectors.remove(group.groupId)
                     throw new RuntimeException("Attempts=${attempts}\tException while creating thread group: ${e.toString()}: ${e.message}")
                 }
             }

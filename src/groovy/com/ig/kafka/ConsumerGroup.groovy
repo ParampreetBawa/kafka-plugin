@@ -8,10 +8,15 @@ class ConsumerGroup {
     Map<String, Integer> topicCountMap
     Class<? extends ConsumerTask> consumerTaskClass
 
-    Boolean startConsumerGroup(){
+    public Boolean startConsumerGroup() throws Exception {
         ConsumerManager.instance.startConsumerGroup(this.groupId)
     }
-    Integer getThreadCount(){
+
+    public Boolean stopConsumerGroup() throws Exception {
+        ConsumerManager.instance.stopConsumerGroup(this.groupId)
+    }
+
+    public Integer getThreadCount() {
         topicCountMap?.collect {it.value}?.sum()?:0
     }
 }
