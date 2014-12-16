@@ -1,4 +1,4 @@
-package com.ig.kafka
+package org.grails.plugins.kafka
 
 /**
  * Created by parampreet on 24/11/14.

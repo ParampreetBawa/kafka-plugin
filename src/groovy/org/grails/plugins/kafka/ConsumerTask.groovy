@@ -1,4 +1,4 @@
-package com.ig.kafka
+package org.grails.plugins.kafka
 
 import kafka.consumer.ConsumerIterator
 import kafka.consumer.KafkaStream

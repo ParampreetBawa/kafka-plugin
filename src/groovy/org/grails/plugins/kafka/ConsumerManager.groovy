@@ -1,4 +1,4 @@
-package com.ig.kafka
+package org.grails.plugins.kafka
 
 import grails.util.Holders
 import kafka.consumer.Consumer
@@ -8,6 +8,7 @@ import kafka.javaapi.consumer.ConsumerConnector
 
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import static org.grails.plugins.kafka.Util.*
 
 /**
  * Created by parampreet on 24/11/14.
@@ -161,10 +162,6 @@ class ConsumerManager {
 
     private static String getZookeeper() {
         config.kafka.zookeeper
-    }
-
-    private static ConfigObject getConfig() {
-        return Holders.applicationContext.getBean('grailsApplication')
     }
 
 }
