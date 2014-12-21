@@ -42,7 +42,7 @@ grails.project.dependency.resolution = {
             exclude "jmxtools"
             exclude "jms"
         }
-
+        test "org.spockframework:spock-grails-support:0.7-groovy-2.0"
         compile('org.codehaus.jackson:jackson-mapper-asl:1.9.13')
     }
 

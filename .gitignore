@@ -5,3 +5,4 @@ target/
 *.tld
 .DS_Store
 *.zip
+*.sha1

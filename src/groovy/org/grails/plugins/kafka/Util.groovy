@@ -7,6 +7,6 @@ import grails.util.Holders
  */
 class Util {
     public static ConfigObject getConfig() {
-        return Holders.applicationContext.getBean('grailsApplication')
+        return Holders.config
     }
 }

@@ -1,6 +1,5 @@
 package org.grails.plugins.kafka
 
-import grails.util.Holders
 import kafka.consumer.Consumer
 import kafka.consumer.ConsumerConfig
 import kafka.consumer.KafkaStream
@@ -8,7 +7,8 @@ import kafka.javaapi.consumer.ConsumerConnector
 
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import static org.grails.plugins.kafka.Util.*
+
+import static org.grails.plugins.kafka.Util.getConfig
 
 /**
  * Created by parampreet on 24/11/14.
@@ -33,7 +33,10 @@ class ConsumerManager {
      * @throws Exception
      */
     public static ConsumerGroup addConsumerGroup(ConsumerGroup group) throws Exception {
+        assert group, "group is null"
         assert group.consumerTaskClass, "taskClass missing"
+        assert group.groupId, "group id missing"
+        assert group.topicCountMap, "topic count map missing"
 
         if (!groups) {
             groups = new HashMap<String, ConsumerGroup>()
@@ -63,7 +66,7 @@ class ConsumerManager {
      * @return
      * @throws Exception
      */
-    public Boolean startConsumerGroup(String groupId, Integer maxTries = null) throws Exception {
+    public static Boolean startConsumerGroup(String groupId, Integer maxTries = null) throws Exception {
         if (null == groupId)
             throw new IllegalArgumentException("group id cannot be null.")
 
@@ -71,7 +74,7 @@ class ConsumerManager {
         if (!group)
             throw IllegalStateException("no consumer group with group id :${groupId} found.")
 
-        if(_consumerStatusMap[group].equals(ConsumerStatus.STARTED))
+        if(_consumerStatusMap[group.groupId].equals(ConsumerStatus.STARTED))
             throw new IllegalStateException("consumer with group id : ${groupId} is already in started state.")
 
         ExecutorService executor = Executors.newFixedThreadPool(group.threadCount)
@@ -85,7 +88,7 @@ class ConsumerManager {
      * @param groupId
      * @return
      */
-    public Boolean stopConsumerGroup(String groupId){
+    public static Boolean stopConsumerGroup(String groupId){
         if (null == groupId)
             throw new IllegalArgumentException("group id cannot be null.")
 
@@ -93,7 +96,7 @@ class ConsumerManager {
         if (!group)
             throw IllegalStateException("no consumer group with group id :${groupId} found.")
 
-        if(_consumerStatusMap[group].equals(ConsumerStatus.STARTED))
+        if(!_consumerStatusMap[group.groupId].equals(ConsumerStatus.STARTED))
             throw new IllegalStateException("consumer with group id : ${groupId} is not running")
 
         ConsumerConnector connector = _connectors.remove(groupId)
@@ -103,12 +106,16 @@ class ConsumerManager {
         return true
     }
 
+    public static Map getStatus(){
+        new HashMap(_consumerStatusMap)
+    }
+
     /**
      * To Set Global MAX TRIES threshold value
      * @param maxTries
      * @return
      */
-    public Integer setMaxTries(Integer maxTries) {
+    public static Integer setMaxTries(Integer maxTries) {
         globalMaxTries = maxTries
     }
 
@@ -149,7 +156,8 @@ class ConsumerManager {
     }
 
     private static synchronized void generateAndAssignGroupId(ConsumerGroup group) {
-        group.groupId = "gpid-${group.consumerTaskClass.simpleName}${size ? ('-' + size++) : ''}"
+        size++
+        group.groupId = "gpid-${group.consumerTaskClass.simpleName}${size ? ('-' + size) : ''}"
     }
 
     private static ConsumerConfig createConsumerConfig(String zookeeper, String groupId) {

@@ -56,16 +56,12 @@ abstract class ConsumerTask implements Runnable {
 
     @Override
     public void run() throws Exception {
-        if(log.isDebugEnabled())
-            log.debug("**${name} started and waiting for messages")
         while (hasNextMsg()) {
             String msg = getNextMsg()
-            if(log.isDebugEnabled())
-                log.debug(msg)
             try {
                 onReceive(msg)
             } catch (Exception e) {
-                log.error(e)
+               throw e
             }
         }
     }
